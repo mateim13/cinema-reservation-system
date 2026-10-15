@@ -1,105 +1,105 @@
-# Sistem de Rezervări pentru un Cinema
+# Cinema Reservation System
 
-Aplicație C++17 orientată pe obiecte pentru gestionarea completă a rezervărilor într-un cinematograf, cu interfață consolă și server REST (CrowCpp) pentru un frontend web modern.
+An object-oriented C++17 application for comprehensive cinema reservation management, featuring a console interface and a REST server (CrowCpp) for a modern web frontend.
 
-**Autor:** Mandrescu Matei, grupa 3121b
-
----
-
-## Funcționalități principale
-
-### Domeniu & model
-- Entități: `Film`, `Sala`, `Proiectie`, `Rezervare`, `User`, `Angajat`, `Voucher`, `ProdusConsumabil`, `Bilet`
-- **Design patterns:** Singleton (`Cinematograf`), Factory (`BiletFactory`), Polimorfism (ierarhia `User → Angajat`, ierarhia de bilete)
-- 10 excepții custom (`Exceptii.h`) pentru validări (loc ocupat, dată în trecut, autentificare eșuată etc.)
-
-### Autentificare & roluri (3 roluri)
-- **Client** — rezervă bilete, vede istoricul propriu, anulează rezervări
-- **Angajat** — partea operațională: validare bilete, programul zilei, POS bar, rezervări, stoc snacks, comenzi VIP
-- **Admin** — partea de management: filme, proiecții, săli, vouchere, useri, statistici
-
-### Rezervări
-- Rezervare multi-loc cu hartă vizuală a sălii (locuri ocupate în timp real)
-- Tipuri de sală: Standard / IMAX / VIP, cu layout diferit (culoar central vs. perechi VIP)
-- **Preț pe rând** (tier): rândurile din față ×0.85, mijloc ×1.00, spate ×1.20 (sălile VIP exceptate)
-- Vouchere cu validare pe zi și pe tip de bilet
-- Card de fidelitate — reducere automată 10%
-- Extras premium în sala VIP (șampanie, platouri etc.), comandate la rezervare și persistate
-- **Bilet cu cod QR scanabil** (conține ID-ul rezervării) + cod de bare, în confirmarea rezervării
-
-### Cont client
-- Istoric rezervări cu **filtre** (status, perioadă viitoare/trecut, căutare film) și **sortare**
-- Anulare rezervare direct de către client (locul se eliberează)
-- Rezumat: bilete active + total cheltuit
-
-### Program & căutare
-- Pagina „Program" cu **căutare** după titlu și **filtre** după gen, format (2D/3D) și zi
-
-### Panou angajat (operațional)
-- **Validare bilet** după cod (valid / anulat / inexistent) — scanezi QR-ul sau introduci ID-ul
-- **Programul zilei** cu grad de ocupare per proiecție
-- **POS Bar** — vânzare snacks la casă (bon cu TVA)
-- **Rezervări** — lista biletelor + căutare/filtru/sortare + anulare + export CSV
-- **Stoc snacks** — reaprovizionare
-- **Comenzi VIP premium**
-
-### Panou admin (management)
-- CRUD filme și proiecții (adăugare / **editare** / **ștergere**, cu protecție: nu se șterge/editează o proiecție cu rezervări active)
-- **Grad de ocupare** per proiecție (bară + procent)
-- Statistici: **venituri pe film** și **încasări pe perioadă** (săptămână / lună)
-- Gestionare vouchere (adăugare / activare / ștergere)
-- Tabel săli încărcat dinamic; **Clienți** și **Angajați** afișați separat
-- Export CSV al rezervărilor (din panoul angajat)
-
-### Tehnic
-- Persistență în fișiere CSV — **incrementală**: fiecare modificare se salvează imediat
-- **Thread-safety**: mutex global (`std::lock_guard`) pe toate rutele care modifică starea → previne dubla-rezervare la cereri concurente
-- Server REST (CrowCpp) cu middleware CORS
+**Author:** Mandrescu Matei, group 3121b
 
 ---
 
-## Tehnologii
+## Key Features
 
-| Componentă | Tehnologie |
+### Domain & Data Model
+- Entities: `Film`, `Sala`, `Proiectie`, `Rezervare`, `User`, `Angajat`, `Voucher`, `ProdusConsumabil`, `Bilet`
+- **Design patterns:** Singleton (`Cinematograf`), Factory (`BiletFactory`), Polymorphism (`User → Angajat` hierarchy and ticket hierarchy)
+- 10 custom exceptions (`Exceptii.h`) for validation (occupied seat, date in the past, failed authentication, etc.)
+
+### Authentication & Roles (3 Roles)
+- **Customer** — book tickets, view personal booking history, cancel reservations
+- **Employee** — operational tasks: ticket validation, daily schedule, concession stand POS, reservations, snack inventory, VIP orders
+- **Admin** — management tasks: movies, screenings, theaters, vouchers, users, statistics
+
+### Reservations
+- Multi-seat booking with a visual seating map (real-time occupied seats)
+- Theater types: Standard / IMAX / VIP, with different layouts (central aisle vs. VIP seat pairs)
+- **Row-based pricing** (tiers): front rows ×0.85, middle rows ×1.00, back rows ×1.20 (VIP theaters excluded)
+- Vouchers validated by day and ticket type
+- Loyalty card — automatic 10% discount
+- Premium VIP extras (champagne, platters, etc.), ordered during booking and saved persistently
+- **Ticket with a scannable QR code** (containing the reservation ID) + barcode in the booking confirmation
+
+### Customer Account
+- Booking history with **filters** (status, upcoming/past, movie search) and **sorting**
+- Customers can cancel reservations directly (the seat becomes available again)
+- Summary: active tickets + total amount spent
+
+### Schedule & Search
+- “Schedule” page with **search** by title and **filters** by genre, format (2D/3D), and day
+
+### Employee Dashboard (Operations)
+- **Ticket validation** by code (valid / canceled / nonexistent) — scan the QR code or enter the ID
+- **Daily schedule** with occupancy rates for each screening
+- **Concession stand POS** — snack sales at the counter (receipt including VAT)
+- **Reservations** — ticket list with search/filter/sort, cancellation, and CSV export
+- **Snack inventory** — restocking
+- **Premium VIP orders**
+
+### Admin Dashboard (Management)
+- CRUD operations for movies and screenings (add / **edit** / **delete**, with safeguards preventing editing or deleting screenings with active reservations)
+- **Occupancy rate** per screening (progress bar + percentage)
+- Statistics: **revenue by movie** and **revenue by period** (week / month)
+- Voucher management (add / activate / delete)
+- Dynamically loaded theater table; **Customers** and **Employees** displayed separately
+- CSV export of reservations (from the employee dashboard)
+
+### Technical Features
+- CSV file persistence — **incremental**: every change is saved immediately
+- **Thread safety**: global mutex (`std::lock_guard`) on all state-changing routes → prevents double booking during concurrent requests
+- REST server (CrowCpp) with CORS middleware
+
+---
+
+## Technologies
+
+| Component | Technology |
 |---|---|
-| Limbaj | C++17 |
-| Build | CMake ≥ 3.15 |
-| Server REST | CrowCpp |
+| Language | C++17 |
+| Build system | CMake ≥ 3.15 |
+| REST server | CrowCpp |
 | Networking | Asio |
-| Dependențe | vcpkg (Windows) / Homebrew (macOS) |
-| Frontend | HTML + CSS + JavaScript pur |
-| Persistență | fișiere CSV (căi relative) |
+| Dependencies | vcpkg (Windows) / Homebrew (macOS) |
+| Frontend | HTML + CSS + vanilla JavaScript |
+| Persistence | CSV files (relative paths) |
 
 ---
 
-## Structura proiectului
+## Project Structure
 
 ```
-├── include/                 # headere (clasele de domeniu + servicii)
+├── include/                 # headers (domain classes + services)
 │   ├── Film.h, Sala.h, Proiectie.h, Rezervare.h
 │   ├── Bilet.h, BiletFactory.h
 │   ├── User.h, Angajat.h
 │   ├── Voucher.h, FormatAudio.h, ProdusConsumabil.h
-│   ├── ApiSerializer.h      # serializare JSON header-only
+│   ├── ApiSerializer.h      # header-only JSON serialization
 │   ├── Cinematograf.h       # Singleton orchestrator
 │   ├── CrowServer.h
-│   ├── StorageService.h     # persistență CSV (căi relative!)
+│   ├── StorageService.h     # CSV persistence (relative paths!)
 │   ├── ConsoleUI.h
-│   └── Exceptii.h           # excepții custom
+│   └── Exceptii.h           # custom exceptions
 ├── src/
-│   ├── main.cpp             # entry point consolă (CinemaApp)
-│   ├── main_crow.cpp        # entry point server REST (CinemaServer)
-│   ├── CrowServer.cpp       # toate rutele REST + CORS + lock-uri
+│   ├── main.cpp             # console entry point (CinemaApp)
+│   ├── main_crow.cpp        # REST server entry point (CinemaServer)
+│   ├── CrowServer.cpp       # all REST routes + CORS + locks
 │   ├── ConsoleUI.cpp
 │   ├── Cinematograf.cpp
 │   └── [Film|Sala|Proiectie|Rezervare|Bilet|User|Angajat|Voucher|ProdusConsumabil|StorageService].cpp
 ├── web/
-│   ├── index.html           # welcome + login (3 roluri) + register + program + cont client
-│   ├── style.css, app.js    # stiluri și logică pentru index.html
-│   ├── client.html          # flux rezervare în 4 pași (self-contained)
-│   ├── admin.html           # dashboard admin (self-contained)
-│   └── angajat.html         # panou angajat operațional (validare, program, POS, rezervări, stoc, VIP)
-├── data/                    # fișiere CSV (date persistate)
+│   ├── index.html           # welcome + login (3 roles) + register + schedule + customer account
+│   ├── style.css, app.js    # styles and logic for index.html
+│   ├── client.html          # 4-step reservation flow (self-contained)
+│   ├── admin.html           # admin dashboard (self-contained)
+│   └── angajat.html         # employee operations dashboard (validation, schedule, POS, reservations, inventory, VIP)
+├── data/                    # CSV files (persistent data)
 │   ├── filme.csv, sali.csv, proiectii.csv
 │   ├── rezervari.csv, useri.csv, preturi.csv
 │   ├── vouchere.csv, snacks.csv, vip_extras.csv
@@ -109,19 +109,19 @@ Aplicație C++17 orientată pe obiecte pentru gestionarea completă a rezervări
 
 ---
 
-## Compilare și rulare
+## Building and Running
 
-> **Important:** Rulează întotdeauna serverul din **rădăcina proiectului**, nu din `build/`.
-> `StorageService` folosește căi relative (`data/*.csv`).
+> **Important:** Always run the server from the **project root directory**, not from `build/`.
+> `StorageService` uses relative paths (`data/*.csv`).
 
 ### macOS (Homebrew)
 
 ```bash
 brew install cmake crow asio
 cmake -B build -S . -DCMAKE_PREFIX_PATH="/opt/homebrew"
-cmake --build build --target CinemaServer -j 4   # serverul REST
-cmake --build build --target CinemaApp -j 4      # aplicația consolă
-./build/CinemaServer    # pornește pe http://localhost:8080
+cmake --build build --target CinemaServer -j 4   # REST server
+cmake --build build --target CinemaApp -j 4      # console application
+./build/CinemaServer    # starts at http://localhost:8080
 ```
 
 ### Windows (MinGW + vcpkg)
@@ -147,114 +147,115 @@ cmake --build build -j 4
 
 ---
 
-## Frontend web
+## Web Frontend
 
-Aplicația e **una singură**: `CinemaServer` (Crow) servește **și** paginile din `web/`, **și** API-ul.
-Pornește serverul și deschide în browser **`http://localhost:8080`** — atât. Nu mai e nevoie de un server static separat, iar API-ul e pe `http://localhost:8080/api/`.
+The application runs as **a single service**: `CinemaServer` (Crow) serves **both** the pages in `web/` **and** the API.
+Start the server and open **`http://localhost:8080`** in your browser. No separate static file server is needed, and the API is available at `http://localhost:8080/api/`.
 
-| Pagină | Rol | Descriere |
+| Page | Role | Description |
 |--------|-----|-----------|
-| `index.html` | toți | Welcome, login (Client/Angajat/Admin), register, program filme, contul meu |
-| `client.html` | Client | Flux rezervare complet în 4 pași |
-| `angajat.html` | Angajat | Dashboard operațional: validare bilet (QR/cod), program, POS bar, rezervări, stoc snacks, comenzi VIP |
-| `admin.html` | Admin | Management: filme, săli, proiecții, statistici, vouchere, clienți & angajați |
+| `index.html` | All | Welcome, login (Customer/Employee/Admin), registration, movie schedule, my account |
+| `client.html` | Customer | Complete 4-step reservation flow |
+| `angajat.html` | Employee | Operations dashboard: ticket validation (QR/code), schedule, concession stand POS, reservations, snack inventory, VIP orders |
+| `admin.html` | Admin | Management: movies, theaters, screenings, statistics, vouchers, customers & employees |
 
-### Flux rezervare client (`client.html`)
-1. **Program filme** — grid cu prețuri și genuri
-2. **Selectare oră** — proiecții grupate pe săli
-3. **Selectare loc** — hartă vizuală, locuri ocupate marcate în timp real, preț pe rând
-4. **Snacks & Bar** — comandă opțională + confirmare cu detalii complete înainte de plată
+### Customer Reservation Flow (`client.html`)
+1. **Movie schedule** — grid with prices and genres
+2. **Showtime selection** — screenings grouped by theater
+3. **Seat selection** — visual map, occupied seats marked in real time, row-based pricing
+4. **Snacks & Bar** — optional order + confirmation with complete details before payment
 
 ---
 
-## Endpoint-uri REST
+## REST Endpoints
 
-### Publice / Client
-| Method | Endpoint | Descriere |
+### Public / Customer
+| Method | Endpoint | Description |
 |--------|----------|-----------|
-| POST | `/api/login` | Autentificare (`{username, parola, tip}`; tip = client/angajat/admin) |
-| POST | `/api/register` | Înregistrare cont client |
-| GET | `/api/filme` | Lista filmelor |
-| GET | `/api/sali` | Lista sălilor |
-| GET | `/api/proiectii/viitoare` | Proiecții viitoare (film + sală embed) |
-| GET | `/api/proiectii/vip` | Proiecții în săli VIP |
-| GET | `/api/proiectii/<id>/locuri` | Locuri ocupate pentru o proiecție |
-| GET | `/api/snacks` | Produse bar cu stoc |
-| POST | `/api/verifica-voucher` | Validare voucher + reducere % |
-| POST | `/api/rezerva` | Creare rezervare |
-| POST | `/api/comanda-snacks` | Pre-comandă snacks |
-| POST | `/api/vip-extras` | Extras premium VIP (persistate) |
-| GET | `/api/rezervarile-mele?username=` | Rezervările unui client |
-| POST | `/api/anuleaza` | Anulare rezervare de către client |
+| POST | `/api/login` | Authentication (`{username, parola, tip}`; `tip` = client/angajat/admin) |
+| POST | `/api/register` | Customer account registration |
+| GET | `/api/filme` | List of movies |
+| GET | `/api/sali` | List of theaters |
+| GET | `/api/proiectii/viitoare` | Upcoming screenings (embedded movie + theater) |
+| GET | `/api/proiectii/vip` | Screenings in VIP theaters |
+| GET | `/api/proiectii/<id>/locuri` | Occupied seats for a screening |
+| GET | `/api/snacks` | Concession products with stock availability |
+| POST | `/api/verifica-voucher` | Voucher validation + discount percentage |
+| POST | `/api/rezerva` | Create a reservation |
+| POST | `/api/comanda-snacks` | Pre-order snacks |
+| POST | `/api/vip-extras` | Premium VIP extras (persisted) |
+| GET | `/api/rezervarile-mele?username=` | A customer's reservations |
+| POST | `/api/anuleaza` | Customer reservation cancellation |
 
-### Angajat
-| Method | Endpoint | Descriere |
+### Employee
+| Method | Endpoint | Description |
 |--------|----------|-----------|
-| GET | `/api/rezervare/<id>` | Verificare bilet (valid / anulat / inexistent) |
+| GET | `/api/rezervare/<id>` | Ticket verification (valid / canceled / nonexistent) |
 
 ### Admin
-| Method | Endpoint | Descriere |
+| Method | Endpoint | Description |
 |--------|----------|-----------|
-| GET | `/api/admin/useri` | Lista userilor |
-| GET | `/api/admin/rezervari` | Lista rezervărilor (cu `proiectieId`) |
-| GET | `/api/admin/vouchere` | Lista voucherelor |
-| GET | `/api/admin/vip-extras` | Comenzile VIP premium |
-| POST | `/api/admin/anuleaza` | Anulare rezervare |
-| POST | `/api/admin/card-fidelitate` | Toggle card fidelitate |
-| POST | `/api/admin/filme` | Adaugă film |
-| DELETE | `/api/admin/filme/<titlu>` | Șterge film |
-| POST | `/api/admin/proiectii` | Adaugă proiecție (anti-conflict sală/oră) |
-| POST | `/api/admin/proiectii/edit` | Editează proiecție (blocat dacă are rezervări active) |
-| DELETE | `/api/admin/proiectii/<id>` | Șterge proiecție (blocat dacă are rezervări active) |
-| POST | `/api/admin/vouchere/add` · `/toggle` · DELETE `/<cod>` | Gestionare vouchere |
-| POST | `/api/admin/snacks/refill` | Reaprovizionare stoc |
+| GET | `/api/admin/useri` | List of users |
+| GET | `/api/admin/rezervari` | List of reservations (with `proiectieId`) |
+| GET | `/api/admin/vouchere` | List of vouchers |
+| GET | `/api/admin/vip-extras` | Premium VIP orders |
+| POST | `/api/admin/anuleaza` | Cancel a reservation |
+| POST | `/api/admin/card-fidelitate` | Toggle loyalty card |
+| POST | `/api/admin/filme` | Add a movie |
+| DELETE | `/api/admin/filme/<titlu>` | Delete a movie |
+| POST | `/api/admin/proiectii` | Add a screening (prevents theater/time conflicts) |
+| POST | `/api/admin/proiectii/edit` | Edit a screening (blocked if active reservations exist) |
+| DELETE | `/api/admin/proiectii/<id>` | Delete a screening (blocked if active reservations exist) |
+| POST | `/api/admin/vouchere/add` · `/toggle` · DELETE `/<cod>` | Manage vouchers |
+| POST | `/api/admin/snacks/refill` | Restock inventory |
 
 ---
 
-## Credențiale demo
+## Demo Credentials
 
-| Rol | Username | Parolă |
+| Role | Username | Password |
 |-----|----------|--------|
 | Admin | `admin` | `admin123` |
-| Angajat | `angajat1`, `angajat2` | `parola123` |
-| Client | `ana`, `andrei`, `ioana`, `vlad` | `parola123` |
+| Employee | `angajat1`, `angajat2` | `parola123` |
+| Customer | `ana`, `andrei`, `ioana`, `vlad` | `parola123` |
 
-Fiecare client demo are rezervări variate (viitoare + trecute, săli și ore diferite).
-Admin-ul este creat automat la prima rulare dacă nu există. Clienți noi se pot înregistra din pagina web.
+Each demo customer has various reservations (upcoming and past, with different theaters and times).
+The admin account is created automatically on the first run if it does not exist. New customers can register through the web interface.
 
 ---
 
-## Tipuri de sală și prețuri
+## Theater Types and Pricing
 
-| Tip | Layout | Multiplicator sală | Bilete |
+| Type | Layout | Theater Multiplier | Tickets |
 |-----|--------|--------------------|--------|
-| Standard | culoar central (ex. 10×15) | ×1.00 | Adult, Student, Copil, Pensionar |
-| IMAX | culoar central (ex. 8×12) | ×1.50 | Adult, Student, Copil, Pensionar |
-| VIP | perechi de 2 (ex. 4×6) | ×2.00 | VIP, Adult |
+| Standard | Central aisle (e.g., 10×15) | ×1.00 | Adult, Student, Child, Senior |
+| IMAX | Central aisle (e.g., 8×12) | ×1.50 | Adult, Student, Child, Senior |
+| VIP | Pairs of 2 seats (e.g., 4×6) | ×2.00 | VIP, Adult |
 
-**Formula preț final:**
+**Final price formula:**
 ```
-pretFinal = pretBazaFilm × multiplicatorBilet × multiplicatorSală × multiplicatorRând
+finalPrice = movieBasePrice × ticketMultiplier × theaterMultiplier × rowMultiplier
 ```
-- **Multiplicator rând** (doar Standard/IMAX): față (≤30%) ×0.85, mijloc (≤70%) ×1.00, spate (>70%) ×1.20
-- **Card fidelitate:** −10% suplimentar
-- **Voucher:** reducere procentuală pe prețul biletului (validată pe zi și tip)
+
+- **Row multiplier** (Standard/IMAX only): front (≤30%) ×0.85, middle (≤70%) ×1.00, back (>70%) ×1.20
+- **Loyalty card:** additional 10% discount
+- **Voucher:** percentage discount on the ticket price (validated by day and type)
 
 ---
 
-## Fișiere CSV
+## CSV Files
 
-| Fișier | Format |
+| File | Format |
 |--------|--------|
 | `filme.csv` | `titlu,durata,tip,gen,pretBaza` |
 | `sali.csv` | `nume,tipSala,randuri,locuriPeRand` |
 | `proiectii.csv` | `id,titluFilm,numeSala,dataOra,formatAudio` |
 | `rezervari.csv` | `idRez,idProi,rand,loc,tipBilet,pret,username,anulat` |
-| `useri.csv` | `username,parolaHash,rol,cardFidelitate` (Angajat: `...,Angajat,program,sala`) |
+| `useri.csv` | `username,parolaHash,rol,cardFidelitate` (Employee: `...,Angajat,program,sala`) |
 | `preturi.csv` | `tipBilet,multiplicator` |
 | `vouchere.csv` | `cod,reducere%,ziuaInt,tipuriExcluse\|,activ` |
 | `snacks.csv` | `nume,descriere,pret,stoc` |
-| `vip_extras.csv` | `idRezervare⇥extrasJSON` (delimitat prin TAB) |
+| `vip_extras.csv` | `idRezervare⇥extrasJSON` (TAB-delimited) |
 
-Datele se salvează **incremental** — fiecare operație (rezervare, anulare, acțiune admin) scrie imediat în CSV.
-Parolele sunt hash-uite (djb2) — suficient pentru scop didactic, nu pentru producție.
+Data is saved **incrementally** — every operation (reservation, cancellation, admin action) is immediately written to CSV.
+Passwords are hashed (djb2) — sufficient for educational purposes, but not for production use.
