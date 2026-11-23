@@ -1,0 +1,674 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --red:       #e50914;
+    --red-dim:   #b00710;
+    --red-glow:  rgba(229, 9, 20, 0.45);
+    --bg:        #080808;
+    --bg2:       #101010;
+    --bg3:       #181818;
+    --surface:   rgba(14, 14, 14, 0.92);
+    --border:    rgba(255,255,255,0.07);
+    --text:      #f2f2f2;
+    --text-dim:  #777;
+    --text-muted:#444;
+    --radius:    6px;
+    --radius-lg: 12px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.screen {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+}
+.screen.active { display: flex; flex-direction: column; }
+
+.navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3rem;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+    transition: background 0.3s;
+}
+
+.navbar.scrolled {
+    background: rgba(8, 8, 8, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.12em;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.nav-logo:hover { color: var(--red); }
+
+.nav-links { display: flex; gap: 0.75rem; align-items: center; }
+
+.nav-btn {
+    padding: 0.55rem 1.25rem;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.nav-btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid transparent;
+}
+.nav-btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--border);
+}
+
+.nav-btn-primary {
+    background: var(--red);
+    color: #fff;
+}
+.nav-btn-primary:hover {
+    background: #ff1a24;
+    box-shadow: 0 0 18px var(--red-glow);
+}
+
+.video-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 28% 82%, #160609 0%, #0a0405 48%, #060606 100%);
+}
+
+/* Fasciculul proiectorului — con de lumină din cabina de proiecție (dreapta-sus) */
+.cine-beam {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: screen;
+    filter: blur(2px);
+    background: conic-gradient(from 192deg at 95% 7%,
+        transparent 0deg 26deg,
+        rgba(255,236,220,0.05) 31deg, rgba(255,238,224,0.12) 39deg, rgba(255,236,220,0.05) 47deg,
+        transparent 52deg 360deg);
+    animation: cineFlicker 5.5s ease-in-out infinite;
+}
+@keyframes cineFlicker { 0%,100%{opacity:.92} 43%{opacity:1} 57%{opacity:.8} 72%{opacity:.95} }
+
+/* Lentila proiectorului */
+.cine-lens {
+    position: absolute;
+    top: 5.5%; right: 4%;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: rgba(255,240,225,0.95);
+    box-shadow: 0 0 26px 9px rgba(255,225,200,0.55);
+}
+
+/* Fire de praf care plutesc în fascicul */
+.cine-dust {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: screen;
+    background-image:
+        radial-gradient(2px 2px at 78% 22%, rgba(255,245,235,0.7), transparent),
+        radial-gradient(1.5px 1.5px at 70% 34%, rgba(255,245,235,0.55), transparent),
+        radial-gradient(2px 2px at 63% 48%, rgba(255,245,235,0.5), transparent),
+        radial-gradient(1px 1px at 74% 40%, rgba(255,245,235,0.6), transparent),
+        radial-gradient(1.5px 1.5px at 57% 60%, rgba(255,245,235,0.4), transparent),
+        radial-gradient(1px 1px at 66% 28%, rgba(255,245,235,0.5), transparent),
+        radial-gradient(2px 2px at 52% 70%, rgba(255,245,235,0.35), transparent);
+    animation: cineFloat 16s ease-in-out infinite alternate;
+}
+@keyframes cineFloat { from{transform:translate(0,0)} to{transform:translate(-22px,26px)} }
+
+/* Lumina care „cade pe ecran" (jos-stânga) */
+.cine-screen {
+    position: absolute;
+    left: -6%; bottom: -12%;
+    width: 46vw; height: 40vh;
+    background: radial-gradient(ellipse at center, rgba(255,228,210,0.10), transparent 68%);
+    filter: blur(8px);
+}
+
+/* Peliculă 35mm care se derulează */
+.film-strip {
+    position: absolute;
+    top: -25%; right: 5%;
+    width: 118px; height: 150%;
+    transform: rotate(7deg);
+    opacity: .5;
+    background: #101010;
+    background-image: repeating-linear-gradient(to bottom, rgba(255,255,255,0.045) 0 2px, transparent 2px 66px);
+    border-left: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    animation: filmRoll 24s linear infinite;
+}
+.film-strip::before, .film-strip::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 14px;
+    background: repeating-linear-gradient(to bottom, transparent 0 8px, rgba(255,255,255,0.16) 8px 18px, transparent 18px 26px);
+}
+.film-strip::before { left: 7px; }
+.film-strip::after { right: 7px; }
+@keyframes filmRoll { from{transform:translateY(0) rotate(7deg)} to{transform:translateY(-26px) rotate(7deg)} }
+
+.film-strip.far {
+    right: auto; left: -3%;
+    width: 90px; opacity: .22;
+    transform: rotate(-9deg);
+    filter: blur(1px);
+    animation: filmRollFar 34s linear infinite;
+}
+@keyframes filmRollFar { from{transform:translateY(0) rotate(-9deg)} to{transform:translateY(-26px) rotate(-9deg)} }
+
+/* Overlay: întunecă partea stângă (text lizibil) + vignette */
+.video-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(6,6,6,0.94) 0%, rgba(6,6,6,0.66) 42%, rgba(6,6,6,0.2) 74%, transparent 100%),
+        radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,0.55) 100%);
+}
+
+.hero {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 8rem 3rem 6rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.hero-content {
+    max-width: 640px;
+    animation: fadeUp 0.9s ease both;
+}
+
+.hero-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-left: 2rem;
+}
+.hero-eyebrow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.3rem;
+    height: 1.5px;
+    background: var(--red);
+}
+
+.hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.2rem, 7vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+}
+.hero-title em {
+    font-style: normal;
+    color: var(--red);
+    text-shadow: 0 0 40px rgba(229,9,20,0.4);
+}
+
+.hero-sub {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--text-dim);
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+}
+
+/* CTA Button */
+.cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 2rem;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.01em;
+    position: relative;
+    overflow: hidden;
+}
+.cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+.cta-btn:hover {
+    background: #ff1a24;
+    box-shadow:
+        0 0 25px var(--red-glow),
+        0 0 60px rgba(229,9,20,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+}
+.cta-btn:hover::before { opacity: 1; }
+.cta-btn:active { transform: translateY(0); }
+.cta-btn svg { transition: transform 0.2s; }
+.cta-btn:hover svg { transform: translateX(3px); }
+
+.hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.4s ease both;
+}
+.stat { display: flex; flex-direction: column; gap: 0.15rem; }
+.stat-n {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+}
+.stat-l {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.stat-div {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+}
+
+.scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    right: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeIn 1s 1s ease both;
+}
+.scroll-hint span {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    writing-mode: vertical-rl;
+}
+.scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--text-muted), transparent);
+    animation: scrollPulse 2s 1.5s ease-in-out infinite;
+}
+
+.screen-form {
+    justify-content: center;
+    align-items: center;
+    background: var(--bg);
+}
+
+.form-backdrop {
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 70% 30%, rgba(229,9,20,0.1) 0%, transparent 60%),
+        var(--bg);
+    z-index: 0;
+}
+
+.form-wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(20px);
+    animation: fadeUp 0.5s ease both;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--text); }
+
+/* ── Cont client: card "modal" cu lista scrollabila in interior ───────────── */
+/* Cardul nu mai depaseste niciodata viewport-ul si nu trece sub navbar;       */
+/* doar #acc-rezervari scrolleaza, deci "Inapoi" si butoanele de jos raman      */
+/* mereu vizibile si clickabile.                                                */
+#screen-account.screen-form {
+    align-items: center;
+    justify-content: flex-start;
+    padding: 84px 1rem 24px;
+}
+#screen-account .form-wrap {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 108px);
+    margin-top: auto;
+    margin-bottom: auto;
+}
+#screen-account .form-wrap > *:not(#acc-rezervari) { flex-shrink: 0; }
+#acc-rezervari {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.form-header { margin-bottom: 1.75rem; }
+.form-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+}
+.form-header p {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    font-weight: 300;
+}
+
+.tab-row {
+    display: flex;
+    background: var(--bg3);
+    border-radius: var(--radius);
+    padding: 3px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+}
+.tab {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: calc(var(--radius) - 1px);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.tab.active {
+    background: var(--red);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(229,9,20,0.3);
+}
+
+/* Fields */
+.field { margin-bottom: 1.1rem; }
+.field label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.45rem;
+}
+.field input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+.field input::placeholder { color: var(--text-muted); }
+.field input:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(229,9,20,0.1);
+}
+
+.msg {
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    font-weight: 400;
+}
+.msg-error {
+    background: rgba(229,9,20,0.08);
+    border: 1px solid rgba(229,9,20,0.25);
+    color: #ff6b6b;
+}
+.msg-success {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.25);
+    color: #4ade80;
+}
+.hidden { display: none !important; }
+
+/* Submit button */
+.submit-btn {
+    width: 100%;
+    padding: 0.85rem;
+    margin-top: 0.5rem;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 0.02em;
+}
+.submit-btn:hover {
+    background: #ff1a24;
+    box-shadow: 0 0 20px var(--red-glow);
+    transform: translateY(-1px);
+}
+.submit-btn:active { transform: translateY(0); }
+
+.switch-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.switch-link a {
+    color: var(--red);
+    text-decoration: none;
+    font-weight: 500;
+}
+.switch-link a:hover { text-decoration: underline; }
+
+.screen-program {
+    background: var(--bg);
+    padding-top: 5rem;
+}
+
+.prog-header {
+    padding: 3rem 3rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+}
+.prog-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    letter-spacing: 0.04em;
+    margin: 0.75rem 0 0.5rem;
+}
+.prog-header p {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    font-weight: 300;
+}
+.red { color: var(--red); }
+
+.prog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 3rem 4rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+}
+
+.proiectie-card {
+    background: var(--bg2);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+.proiectie-card::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--red);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.25s ease;
+}
+.proiectie-card:hover { background: var(--bg3); }
+.proiectie-card:hover::after { transform: scaleY(1); }
+
+.film-titlu {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.meta {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.9;
+    font-weight: 300;
+}
+
+.pret {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--red);
+    letter-spacing: 0.03em;
+}
+
+.badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.badge-3d { background: rgba(229,9,20,0.15); color: var(--red); border: 1px solid rgba(229,9,20,0.3); }
+.badge-vip { background: rgba(255,215,0,0.1); color: #f5c518; border: 1px solid rgba(255,215,0,0.25); }
+.badge-imax { background: rgba(0,150,255,0.1); color: #5bc0eb; border: 1px solid rgba(0,150,255,0.25); }
+
+.loading-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 3rem;
+    grid-column: 1/-1;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50%       { opacity: 1;   transform: scaleY(1.15); }
+}
+
+@media (max-width: 768px) {
+    .navbar { padding: 1rem 1.5rem; }
+    .hero { padding: 7rem 1.5rem 4rem; }
+    .hero-title { font-size: 3rem; }
+    .scroll-hint { display: none; }
+    .prog-header { padding: 2rem 1.5rem 1.5rem; }
+    .prog-grid { padding: 0 1.5rem 3rem; }
+    .form-wrap { margin: 1rem; padding: 2rem 1.5rem; }
+}
